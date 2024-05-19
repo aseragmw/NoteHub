@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/black"
     android:padding="16dp"
-    tools:context=".presentation.AddNoteActivity">
+    tools:context=".presentation.screens.AddNoteActivity">
 
 
     <androidx.appcompat.widget.Toolbar

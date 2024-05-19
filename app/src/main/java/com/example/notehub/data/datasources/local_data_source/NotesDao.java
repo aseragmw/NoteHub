@@ -1,4 +1,4 @@
-package com.example.notehub.data;
+package com.example.notehub.data.datasources.local_data_source;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

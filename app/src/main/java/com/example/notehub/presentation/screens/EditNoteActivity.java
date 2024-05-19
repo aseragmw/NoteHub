@@ -1,6 +1,5 @@
-package com.example.notehub.presentation;
+package com.example.notehub.presentation.screens;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -21,9 +20,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.notehub.R;
-import com.example.notehub.data.NotesDatabase;
+import com.example.notehub.data.datasources.local_data_source.NotesDatabase;
 import com.example.notehub.domain.NoteModel;
 import com.example.notehub.domain.NotesRepository;
+import com.example.notehub.presentation.listeners.OnNotesSyncCallBack;
 import com.example.notehub.presentation.viewmodels.NotesViewModel;
 
 import java.time.LocalDateTime;
@@ -106,7 +106,18 @@ public class EditNoteActivity extends AppCompatActivity {
                             note.setTitle(title.getText().toString());
                             note.setContent(content.getText().toString());
                             note.setTimestamp(dateTimeAsDouble);
-                            notesViewModel.updateNote(note);
+                            notesViewModel.updateNote(note, new OnNotesSyncCallBack() {
+                                @Override
+                                public void onSucess(String msg) {
+                                    Toast.makeText(EditNoteActivity.this, msg, Toast.LENGTH_SHORT).show();
+                                }
+
+                                @Override
+                                public void onFailed(String msg) {
+                                    Toast.makeText(EditNoteActivity.this, msg, Toast.LENGTH_SHORT).show();
+
+                                }
+                            });
                             Toast.makeText(this, "Note Updated", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -128,7 +139,18 @@ public class EditNoteActivity extends AppCompatActivity {
                             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    notesViewModel.deleteNote(note);
+                                    notesViewModel.deleteNote(note, new OnNotesSyncCallBack() {
+                                        @Override
+                                        public void onSucess(String msg) {
+                                            Toast.makeText(EditNoteActivity.this, msg, Toast.LENGTH_SHORT).show();
+                                        }
+
+                                        @Override
+                                        public void onFailed(String msg) {
+                                            Toast.makeText(EditNoteActivity.this, msg, Toast.LENGTH_SHORT).show();
+
+                                        }
+                                    });
                                     finish();
                                     dialog.dismiss(); // Close the dialog
                                 }

@@ -1,4 +1,4 @@
-package com.example.notehub.data;
+package com.example.notehub.data.datasources.local_data_source;
 
 import android.content.Context;
 
@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase;
 import com.example.notehub.domain.NoteModel;
 
 
-@Database(entities = {NoteModel.class}, version = 2, exportSchema = false)
+@Database(entities = {NoteModel.class}, version = 3, exportSchema = false)
 public abstract class NotesDatabase extends RoomDatabase {
     public abstract NotesDao notesDao();
     private static NotesDatabase INSTANCE = null;
@@ -19,5 +19,8 @@ public abstract class NotesDatabase extends RoomDatabase {
             INSTANCE = Room.databaseBuilder(context.getApplicationContext(), NotesDatabase.class, "notes_database").fallbackToDestructiveMigration().allowMainThreadQueries().build();
         }
         return INSTANCE;
+    }
+
+    public NotesDatabase() {
     }
 }

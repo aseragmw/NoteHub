@@ -1,9 +1,8 @@
-package com.example.notehub.presentation;
+package com.example.notehub.presentation.screens;
 
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,17 +19,20 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Observer;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.example.notehub.R;
-import com.example.notehub.data.NotesDatabase;
+import com.example.notehub.data.datasources.local_data_source.NotesDatabase;
 import com.example.notehub.domain.NoteModel;
 import com.example.notehub.domain.NotesRepository;
 import com.example.notehub.presentation.adapters.NotesAdapter;
+import com.example.notehub.presentation.listeners.OnNotesSyncCallBack;
+import com.example.notehub.presentation.viewmodels.AuthViewModel;
 import com.example.notehub.presentation.viewmodels.NotesViewModel;
+import com.example.notehub.utils.CacheHelper;
+import com.example.notehub.utils.Constants;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -41,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
     NotesAdapter adapter;
     NotesViewModel notesViewModel;
     List<NoteModel> notesList = new ArrayList<>();
+    CacheHelper cacheHelper;
+    AuthViewModel authViewModel;
 
 
     @Override
@@ -53,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+         authViewModel = AuthViewModel.getInstance();
+         cacheHelper = new CacheHelper(this);
+
         //Setup ViewModel
         setupViewModel();
         //Setup Toolbar
@@ -66,6 +73,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.app_bar_menu, menu);
+        MenuItem logoutItem = menu.findItem(R.id.logout_icon_app_bar);
+        if(!cacheHelper.contains(Constants.USER_EMAIL_CACHE)){
+            logoutItem.setVisible(false);
+        }
         return true;
     }
 
@@ -75,6 +86,38 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.search_icon_app_bar) {
             startActivity(new Intent(this,SearchActivity.class));
             return true;
+        }
+        else if(id == R.id.logout_icon_app_bar){
+            cacheHelper.clearKey(Constants.USER_EMAIL_CACHE);
+            cacheHelper.clearKey(Constants.USER_ID_CACHE);
+            cacheHelper.clearKey(Constants.USER_FULLNAME_CACHE);
+            cacheHelper.clearKey("firstTime");
+            authViewModel.logout();
+            startActivity(new Intent(this,LoginOrContinueActivity.class));
+            finish();
+
+        }
+        else if(id == R.id.sync_icon_app_bar){
+            if(authViewModel.isLoggedIn()){
+                Toast.makeText(this, "Syncing Notes", Toast.LENGTH_SHORT).show();
+                notesViewModel.syncNotes(notesList, this, new OnNotesSyncCallBack() {
+                    @Override
+                    public void onSucess(String msg) {
+                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailed(String msg) {
+                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+            else{
+                Toast.makeText(this, "Please Login First", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this,LoginOrContinueActivity.class));
+                finish();
+            }
+
         }
         return super.onOptionsItemSelected(item);
     }

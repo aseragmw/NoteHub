@@ -1,9 +1,8 @@
-package com.example.notehub.presentation;
+package com.example.notehub.presentation.screens;
 
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -20,13 +19,13 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.notehub.R;
-import com.example.notehub.data.NotesDatabase;
+import com.example.notehub.data.datasources.local_data_source.NotesDatabase;
 import com.example.notehub.domain.NoteModel;
 import com.example.notehub.domain.NotesRepository;
+import com.example.notehub.presentation.listeners.OnNotesSyncCallBack;
 import com.example.notehub.presentation.viewmodels.NotesViewModel;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 public class AddNoteActivity extends AppCompatActivity {
     NotesViewModel notesViewModel;
@@ -97,7 +96,18 @@ public class AddNoteActivity extends AppCompatActivity {
                 double fractionOfDay = (double) currentDateTime.toLocalTime().toSecondOfDay() / (24 * 60 * 60);
                 double dateTimeAsDouble = daysSinceEpoch + fractionOfDay;
                 NoteModel note = new NoteModel(title.getText().toString(),content.getText().toString(), dateTimeAsDouble);
-                notesViewModel.insertNote(note);
+                notesViewModel.insertNote(note, new OnNotesSyncCallBack() {
+                    @Override
+                    public void onSucess(String msg) {
+                        Toast.makeText(AddNoteActivity.this, msg, Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailed(String msg) {
+                        Toast.makeText(AddNoteActivity.this, msg, Toast.LENGTH_SHORT).show();
+
+                    }
+                });
                 Toast.makeText(this, "Note Saved", Toast.LENGTH_SHORT).show();
                 finish();
             }

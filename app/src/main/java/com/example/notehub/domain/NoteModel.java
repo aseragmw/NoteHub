@@ -11,6 +11,9 @@ public class NoteModel {
     private String content;
     private double timestamp;
 
+    public NoteModel() {
+    }
+
     public int getId() {
         return id;
     }

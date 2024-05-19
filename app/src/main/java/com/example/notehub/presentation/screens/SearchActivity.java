@@ -1,8 +1,7 @@
-package com.example.notehub.presentation;
+package com.example.notehub.presentation.screens;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -26,7 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.example.notehub.R;
-import com.example.notehub.data.NotesDatabase;
+import com.example.notehub.data.datasources.local_data_source.NotesDatabase;
 import com.example.notehub.domain.NoteModel;
 import com.example.notehub.domain.NotesRepository;
 import com.example.notehub.presentation.adapters.NotesAdapter;

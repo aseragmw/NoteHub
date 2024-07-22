@@ -43,19 +43,16 @@ public class FirestoreSyncService {
                         firestoreNotes.add(note);
                     }
 
-                    // Compare local notes with Firestore notes
                     for (NoteModel localNote : localNotes) {
                         boolean existsInFirestore = firestoreNotes.stream()
                                 .anyMatch(note -> note.getId() == (localNote.getId()));
 
                         if (!existsInFirestore) {
-                            // Note does not exist in Firestore, upload it
                             firestore.collection("users").document(auth.getCurrentUser().getUid()).collection("notes").add(localNote);
                             firestoreNotes.add(localNote);
                         }
                     }
                     notesRepository.notesDao.clearAllNotes();
-                    // Compare Firestore notes with local notes
                     for (NoteModel firestoreNote : firestoreNotes) {
                         notesRepository.insertNote(firestoreNote, new OnNotesSyncCallBack() {
                             @Override
@@ -82,7 +79,6 @@ public class FirestoreSyncService {
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 for (DocumentSnapshot snapshot:queryDocumentSnapshots){
                     snapshot.getReference().set(note);
-
                 }
                 callBack.onSucess("Note updated successfully");
             }

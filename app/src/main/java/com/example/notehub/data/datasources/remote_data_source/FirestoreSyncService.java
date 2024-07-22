@@ -10,6 +10,7 @@ import com.example.notehub.data.datasources.local_data_source.NotesDatabase;
 import com.example.notehub.domain.NoteModel;
 import com.example.notehub.domain.NotesRepository;
 import com.example.notehub.presentation.listeners.OnNotesSyncCallBack;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -79,7 +80,10 @@ public class FirestoreSyncService {
         firestore.collection("users").document(auth.getCurrentUser().getUid()).collection("notes").whereEqualTo("id", note.getId()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                queryDocumentSnapshots.getDocuments().get(0).getReference().set(note);
+                for (DocumentSnapshot snapshot:queryDocumentSnapshots){
+                    snapshot.getReference().set(note);
+
+                }
                 callBack.onSucess("Note updated successfully");
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -95,7 +99,9 @@ public class FirestoreSyncService {
         firestore.collection("users").document(auth.getCurrentUser().getUid()).collection("notes").whereEqualTo("id", note.getId()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                queryDocumentSnapshots.getDocuments().get(0).getReference().delete();
+                for(DocumentSnapshot snapshot:queryDocumentSnapshots){
+                    snapshot.getReference().delete();
+                }
                 callBack.onSucess("Note deleted successfully");
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -108,9 +114,16 @@ public class FirestoreSyncService {
 
     }
 
+
     public void addNoteToFirestore(NoteModel note, OnNotesSyncCallBack callBack) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        String userId = auth.getCurrentUser().getUid();
+        int noteId = note.getId();
         Log.e("fromAddNoteToFirestore", String.valueOf(note.getId()));
+       Task task = firestore.collection("users").document(userId).collection("notes")
+                .whereEqualTo("id", noteId)
+                .get();
+
         firestore.collection("users").document(auth.getCurrentUser().getUid()).collection("notes").add(note).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
             public void onSuccess(DocumentReference documentReference) {

@@ -30,7 +30,6 @@ public class SplashActivity extends AppCompatActivity {
             return insets;
         });
         CacheHelper sharedPreferences = new CacheHelper(this);
-
         boolean flagExists = sharedPreferences.contains("firstTime");
         boolean firstTime =true;
         if(flagExists){

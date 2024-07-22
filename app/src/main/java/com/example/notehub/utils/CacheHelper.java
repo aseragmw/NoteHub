@@ -6,11 +6,6 @@ import android.content.SharedPreferences;
 public class CacheHelper {
 
     private static final String CACHE_NAME = "notehub";
-    private static final String DEFAULT_STRING_VALUE = "";
-    private static final int DEFAULT_INT_VALUE = 0;
-    private static final long DEFAULT_LONG_VALUE = 0L;
-    private static final float DEFAULT_FLOAT_VALUE = 0.0f;
-    private static final boolean DEFAULT_BOOLEAN_VALUE = false;
 
     private SharedPreferences sharedPreferences;
 

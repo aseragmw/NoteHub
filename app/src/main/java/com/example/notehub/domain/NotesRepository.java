@@ -1,5 +1,7 @@
 package com.example.notehub.domain;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 
 import com.example.notehub.data.datasources.local_data_source.NotesDao;
@@ -20,9 +22,11 @@ public class NotesRepository {
     }
 
     public void insertNote(NoteModel note, OnNotesSyncCallBack callBack) {
-        notesDao.insert(note);
+        long newId = notesDao.insert(note);
+        NoteModel newNote = notesDao.getNoteById(newId);
+        Log.d("NotesRepository", "insertNote: "+newNote.getId());
         if(firebaseAuth.getCurrentUser() != null){
-            firestoreSyncService.addNoteToFirestore(note, callBack);
+            firestoreSyncService.addNoteToFirestore(newNote, callBack);
         }
     }
 

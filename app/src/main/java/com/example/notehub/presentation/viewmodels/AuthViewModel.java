@@ -1,7 +1,10 @@
 package com.example.notehub.presentation.viewmodels;
 
+import android.content.Context;
+
 import androidx.lifecycle.ViewModel;
 
+import com.example.notehub.data.datasources.local_data_source.NotesDatabase;
 import com.example.notehub.domain.AuthRepository;
 import com.example.notehub.presentation.listeners.AuthCallBack;
 import com.google.firebase.auth.FirebaseUser;
@@ -30,8 +33,9 @@ public class AuthViewModel extends ViewModel {
         authRepository.signIn(username, password,callBack);
     }
 
-    public void logout() {
+    public void logout(Context context) {
         authRepository.signOut();
+        NotesDatabase.getInstance(context).notesDao().clearAllNotes();
     }
 
     public boolean isLoggedIn() {

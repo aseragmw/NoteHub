@@ -27,6 +27,7 @@ public class AuthRepository {
 
     public void signOut() {
         firebaseAuth.signOut();
+
     }
 
     public com.google.firebase.auth.FirebaseUser getCurrentUserId() {

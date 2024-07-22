@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase;
 import com.example.notehub.domain.NoteModel;
 
 
-@Database(entities = {NoteModel.class}, version = 3, exportSchema = false)
+@Database(entities = {NoteModel.class}, version = 9, exportSchema = false)
 public abstract class NotesDatabase extends RoomDatabase {
     public abstract NotesDao notesDao();
     private static NotesDatabase INSTANCE = null;

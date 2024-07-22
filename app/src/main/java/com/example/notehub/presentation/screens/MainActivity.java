@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             cacheHelper.clearKey(Constants.USER_ID_CACHE);
             cacheHelper.clearKey(Constants.USER_FULLNAME_CACHE);
             cacheHelper.clearKey("firstTime");
-            authViewModel.logout();
+            authViewModel.logout(getApplicationContext());
             startActivity(new Intent(this,LoginOrContinueActivity.class));
             finish();
 
@@ -126,11 +126,8 @@ public class MainActivity extends AppCompatActivity {
         notesViewModel.getAllNotes();
         notesRV = findViewById(R.id.rv_notesHomeScreen);
         notesViewModel.allNotes.observe(this, new Observer<List<NoteModel>>() {
-
             @Override
             public void onChanged(List<NoteModel> noteModels) {
-
-
                 notesList = noteModels;
                 adapter.setData(notesList);
                 ImageView emptyNotes = findViewById(R.id.image_noNotesYet);
@@ -144,7 +141,6 @@ public class MainActivity extends AppCompatActivity {
                     emptyNotes.setVisibility(View.GONE);
                     noNotes.setVisibility(View.GONE);
                 }
-
             }
         });
 

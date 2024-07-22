@@ -24,84 +24,75 @@ import java.util.List;
 public class FirestoreSyncService {
     private FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     private FirebaseAuth auth = FirebaseAuth.getInstance();
-    private NotesRepository notesRepository ;
+    private NotesRepository notesRepository;
 
     public void syncNotes(List<NoteModel> localNotes, Context context, OnNotesSyncCallBack callBack) {
-        Log.e("hola",auth.getCurrentUser().getUid());
+        Log.e("hola", auth.getCurrentUser().getUid());
+        notesRepository = new NotesRepository(NotesDatabase.getInstance(context).notesDao());
 
-             firestore.collection("users").document(auth.getCurrentUser().getUid()).collection("notes").get().addOnFailureListener(e -> {
-                // Handle failure
-                Log.e("FirestoreSyncService", "Error syncing notes: " + e.getMessage());
-                callBack.onFailed(e.getMessage());
-            })
-                    .addOnSuccessListener(queryDocumentSnapshots -> {
-                        List<NoteModel> firestoreNotes = new ArrayList<>();
-                        for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
-                            NoteModel note = document.toObject(NoteModel.class);
-                            firestoreNotes.add(note);
+        firestore.collection("users").document(auth.getCurrentUser().getUid()).collection("notes").get().addOnFailureListener(e -> {
+                    // Handle failure
+                    Log.e("FirestoreSyncService", "Error syncing notes: " + e.getMessage());
+                    callBack.onFailed(e.getMessage());
+                })
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<NoteModel> firestoreNotes = new ArrayList<>();
+                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                        NoteModel note = document.toObject(NoteModel.class);
+                        firestoreNotes.add(note);
+                    }
+
+                    // Compare local notes with Firestore notes
+                    for (NoteModel localNote : localNotes) {
+                        boolean existsInFirestore = firestoreNotes.stream()
+                                .anyMatch(note -> note.getId() == (localNote.getId()));
+
+                        if (!existsInFirestore) {
+                            // Note does not exist in Firestore, upload it
+                            firestore.collection("users").document(auth.getCurrentUser().getUid()).collection("notes").add(localNote);
+                            firestoreNotes.add(localNote);
                         }
-
-                        // Compare local notes with Firestore notes
-                        for (NoteModel localNote : localNotes) {
-                            boolean existsInFirestore = firestoreNotes.stream()
-                                    .anyMatch(note -> note.getId()==(localNote.getId()));
-
-                            if (!existsInFirestore) {
-                                // Note does not exist in Firestore, upload it
-                                firestore.collection("users").document(auth.getCurrentUser().getUid()).collection("notes").add(localNote);
+                    }
+                    notesRepository.notesDao.clearAllNotes();
+                    // Compare Firestore notes with local notes
+                    for (NoteModel firestoreNote : firestoreNotes) {
+                        notesRepository.insertNote(firestoreNote, new OnNotesSyncCallBack() {
+                            @Override
+                            public void onSucess(String msg) {
+                                Log.e("hola", msg);
                             }
-                        }
 
-                        // Compare Firestore notes with local notes
-                        for (NoteModel firestoreNote : firestoreNotes) {
-                            boolean existsLocally = localNotes.stream()
-                                    .anyMatch(note -> note.getId()==(firestoreNote.getId()));
-
-                            if (!existsLocally) {
-                                notesRepository = new NotesRepository(NotesDatabase.getInstance(context).notesDao());
-                                notesRepository.insertNote(firestoreNote, new OnNotesSyncCallBack() {
-                                    @Override
-                                    public void onSucess(String msg) {
-                                                Log.e("hola",msg);
-                                    }
-
-                                    @Override
-                                    public void onFailed(String msg) {
-                                        Log.e("hola",msg);
-
-
-                                    }
-                                });
+                            @Override
+                            public void onFailed(String msg) {
+                                Log.e("holaa", msg);
                             }
-                        }
+                        });
+                    }
+                    callBack.onSucess("Notes synced successfully");
+                })
+        ;
 
-                        callBack.onSucess("Notes synced successfully");
-                    })
-                    ;
-
-        }
-
-
+    }
 
 
     public void updateNoteInFirestore(NoteModel note, OnNotesSyncCallBack callBack) {
-        firestore.collection("users").document(auth.getCurrentUser().getUid()).collection("notes").whereEqualTo("id",note.getId()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        queryDocumentSnapshots.getDocuments().get(0).getReference().set(note);
-                        callBack.onSucess("Note updated successfully");
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
+        firestore.collection("users").document(auth.getCurrentUser().getUid()).collection("notes").whereEqualTo("id", note.getId()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                queryDocumentSnapshots.getDocuments().get(0).getReference().set(note);
+                callBack.onSucess("Note updated successfully");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-callBack.onFailed(e.getMessage());
+                callBack.onFailed(e.getMessage());
             }
         });
 
     }
 
-    public void deleteNoteFromFirestore(NoteModel note,OnNotesSyncCallBack callBack) {
-        firestore.collection("users").document(auth.getCurrentUser().getUid()).collection("notes").whereEqualTo("id",note.getId()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+    public void deleteNoteFromFirestore(NoteModel note, OnNotesSyncCallBack callBack) {
+        firestore.collection("users").document(auth.getCurrentUser().getUid()).collection("notes").whereEqualTo("id", note.getId()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 queryDocumentSnapshots.getDocuments().get(0).getReference().delete();
@@ -117,10 +108,9 @@ callBack.onFailed(e.getMessage());
 
     }
 
-    public void addNoteToFirestore(NoteModel note,OnNotesSyncCallBack callBack) {
+    public void addNoteToFirestore(NoteModel note, OnNotesSyncCallBack callBack) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-
-
+        Log.e("fromAddNoteToFirestore", String.valueOf(note.getId()));
         firestore.collection("users").document(auth.getCurrentUser().getUid()).collection("notes").add(note).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
@@ -134,7 +124,6 @@ callBack.onFailed(e.getMessage());
             }
         });
     }
-
 
 
 }

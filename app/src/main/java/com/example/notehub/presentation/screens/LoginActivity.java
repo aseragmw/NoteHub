@@ -61,7 +61,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(FirebaseUser user) {
 
-                        Toast.makeText(LoginActivity.this, "Registered Successfully", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "Logged In Successfully", Toast.LENGTH_SHORT).show();
                         boolean isLoggedIn = viewModel.isLoggedIn();
                         Log.d("TAG", "onCreate: "+isLoggedIn);
                         Log.d("TAG", "onCreate: "+user.getEmail());

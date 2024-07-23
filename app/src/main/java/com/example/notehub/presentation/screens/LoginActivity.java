@@ -7,8 +7,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     AuthViewModel viewModel;
     EditText email,password;
     Button btnRegister;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +56,9 @@ public class LoginActivity extends AppCompatActivity {
 
 
         btnRegister.setOnClickListener(v -> {
+            btnRegister.setVisibility(View.INVISIBLE);
+            progressBar.setVisibility(View.VISIBLE);
+
             if( email.getText().toString().isEmpty() || password.getText().toString().isEmpty()){
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             }
@@ -79,6 +85,8 @@ public class LoginActivity extends AppCompatActivity {
                 });
 
             }
+            btnRegister.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.INVISIBLE);
         });
 
     }
@@ -97,6 +105,7 @@ public class LoginActivity extends AppCompatActivity {
         email = findViewById(R.id.et_emailLoginScreen);
         password = findViewById(R.id.et_passwordLoginScreen);
         btnRegister = findViewById(R.id.btn_loginScreen);
+        progressBar=findViewById(R.id.progressBar2);
     }
 
     void setupToolbar(){

@@ -7,8 +7,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +36,7 @@ public class RegisterActivity extends AppCompatActivity {
     AuthViewModel viewModel;
     EditText fullName,email,password,confirmPassword;
     Button btnRegister;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +54,8 @@ public class RegisterActivity extends AppCompatActivity {
         viewModel=new ViewModelProvider(this).get(AuthViewModel.class);
 
         btnRegister.setOnClickListener(v -> {
+            btnRegister.setVisibility(View.INVISIBLE);
+            progressBar.setVisibility(View.VISIBLE);
             if(fullName.getText().toString().isEmpty() || email.getText().toString().isEmpty() || password.getText().toString().isEmpty() || confirmPassword.getText().toString().isEmpty()){
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             }
@@ -82,6 +87,8 @@ public class RegisterActivity extends AppCompatActivity {
                 }
 
             }
+            btnRegister.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.INVISIBLE);
         });
 
     }
@@ -100,6 +107,7 @@ public class RegisterActivity extends AppCompatActivity {
         password = findViewById(R.id.et_passwordRegisterScreen);
         confirmPassword=findViewById(R.id.et_confrimPasswordRegisterScreen);
         btnRegister = findViewById(R.id.btn_registerScreen);
+        progressBar = findViewById(R.id.progressBar);
     }
 
     void setupToolbar(){
